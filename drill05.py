@@ -1,7 +1,7 @@
 from pico2d import *
 import random
 
-TUK_WIDTH, TUK_HEIGHT = 1280, 1024
+TUK_WIDTH, TUK_HEIGHT = 800, 600
 
 def load_resources():
     global TUK_ground, character
@@ -12,7 +12,7 @@ def load_resources():
 
 def handle_events():
     global running
-    global x, y
+    global cx, cy
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -25,26 +25,38 @@ def handle_events():
 
 
 def reset_world():
-    global running, x, y, frame
+    global running, cx, cy, frame
     global hx, hy
+    global sx, sy
+    global t
 
     running = True
-    x, y = TUK_WIDTH // 2, TUK_HEIGHT // 2
+    cx, cy = TUK_WIDTH // 2, TUK_HEIGHT // 2
     frame = 0
 
+    sx, sy = cx, cy # p1 : 시작점
     # hx, hy = TUK_WIDTH - 50, TUK_HEIGHT - 50
-    hx, hy = random.randint(0, TUK_WIDTH), random.randint(0, TUK_HEIGHT)
+    hx, hy = random.randint(0, TUK_WIDTH), random.randint(0, TUK_HEIGHT) # p2 : 끝점
+    t = 0.0
 
 def render_world():
     clear_canvas()
     TUK_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
     arrow.draw(hx, hy)
-    character.clip_draw(frame * 100, 100 * 1, 100, 100, x, y)
+    character.clip_draw(frame * 100, 100 * 1, 100, 100, cx, cy)
     update_canvas()
 
 def update_world():
     global frame
+    global cx, cy
+    global t
+
     frame = (frame + 1) % 8
+
+    if t <= 1.0:
+        cx = (1 - t) * sx + t * hx # cx는 시작 x와 끝 x를 1-t : t의 비율로 섞은 위치
+        cy = (1 - t) * sy + t * hy # cy는 시작 y와 끝 y를 1-t : t의 비율로 섞은 위치
+        t += 0.001
 
 open_canvas(TUK_WIDTH, TUK_HEIGHT)
 hide_cursor()
